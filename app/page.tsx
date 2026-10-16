@@ -64,7 +64,7 @@ const CATALOG_ITEMS: CatalogItem[] = [
     acidity: 5,
     density: 2,
     posterSrc:
-      'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?q=75&w=600&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1200&auto=format&fit=crop',
     hasGrindSelector: true,
     defaultGrind: 'Фильтр',
   },
@@ -82,7 +82,7 @@ const CATALOG_ITEMS: CatalogItem[] = [
     acidity: 3,
     density: 4,
     posterSrc:
-      'https://images.unsplash.com/photo-1511920170033-f8396924c348?q=75&w=600&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=1200&auto=format&fit=crop',
     hasGrindSelector: true,
     defaultGrind: 'Зерно',
   },
@@ -100,7 +100,7 @@ const CATALOG_ITEMS: CatalogItem[] = [
     acidity: 1,
     density: 5,
     posterSrc:
-      'https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?q=75&w=600&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?q=80&w=1200&auto=format&fit=crop',
     hasGrindSelector: true,
     defaultGrind: 'Эспрессо',
   },
@@ -118,7 +118,7 @@ const CATALOG_ITEMS: CatalogItem[] = [
     acidity: 3,
     density: 3,
     posterSrc:
-      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=75&w=600&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?q=80&w=1200&auto=format&fit=crop',
     hasGrindSelector: false,
   },
 ];
@@ -132,7 +132,7 @@ const CUSTOMER_NOTES = [
       'Ребята, спасибо за пятничную доставку! Открыла пачку с датой обжарки «вчера» — аромат бергамота на всю кухню. Очень выручает, что мелете прямо перед выездом курьера, дома кофемолки пока нет.',
     reply: 'Катя, спасибо! В следующий четверг жарим свежий урожай Иргачеффе :)',
     photo:
-      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=75&w=400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=400&auto=format&fit=crop',
   },
   {
     id: 2,
@@ -142,17 +142,17 @@ const CUSTOMER_NOTES = [
       'Перешли на «Кварту» всем отделом три месяца назад. Серрадо в офисной кофемашине с молоком получается плотным, без горечи, как в хорошей кофейне в центре. Отдельный респект за простоту: никаких сложных кабинетов, Дима сам пишет в четверг.',
     reply: 'Денис, всегда рады завезти вам свежую партию в пятницу утром!',
     photo:
-      'https://images.unsplash.com/photo-1511920170033-f8396924c348?q=75&w=400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
   },
   {
     id: 3,
     name: 'Илья, Грушевка',
-    context: 'Самовывоз с ул. Короля, 9 • Колумбия Уила',
+    context: 'Самовывоз из мастерской • Колумбия Уила',
     message:
-      'Захожу к Ане и Диме на Короля по дороге на работу. Приятно, когда обжарщики сами стояли за баром и могут человеческим языком объяснить, какой помол выставить под домашнюю рожковую кофеварку.',
+      'Захожу к Ане и Диме по дороге на работу. Приятно, когда обжарщики сами стоят за баром и могут человеческим языком объяснить, какой помол выставить под домашнюю рожковую кофеварку.',
     reply: 'Илья, забегай на фильтр в эту пятницу, открыли новую Колумбию!',
     photo:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=75&w=400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=400&auto=format&fit=crop',
   },
 ];
 
@@ -212,7 +212,7 @@ function TasteDots({ value }: { value: number }) {
         <span
           key={dot}
           className={`w-2 h-2 rounded-full ${
-            dot <= value ? 'bg-[#2C1E16]' : 'bg-[#2C1E16]/15'
+            dot <= value ? 'bg-[#2C1E16]' : 'bg-[#2C1E16]/20'
           }`}
         />
       ))}
@@ -256,7 +256,7 @@ function PhotoCard({
 
 export default function Home() {
   const [schedule, setSchedule] = useState({
-    roastDate: 'ближайший четверг',
+    roastDate: 'четверг',
     deliveryDate: 'пятница',
   });
 
@@ -276,10 +276,7 @@ export default function Home() {
     });
 
     setSchedule({
-      roastDate:
-        day === 4
-          ? 'сегодня (четверг)'
-          : `чт, ${formatter.format(nextThursday)}`,
+      roastDate: `чт, ${formatter.format(nextThursday)}`,
       deliveryDate: `пт, ${formatter.format(nextFriday)}`,
     });
   }, []);
@@ -362,8 +359,6 @@ export default function Home() {
   );
   const hasSubscription = orderItems.some((item) => item.id === 'subscription');
   const isFreeDelivery = totalPrice >= 50 || hasSubscription;
-
-  const remainingBatchPacks = Math.max(0, 20 - totalPacks * 2);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -465,7 +460,7 @@ export default function Home() {
             </span>
           </div>
           <div className="text-[#EAE1D8] font-bold">
-            ⚡ Остаток партии этого четверга: {remainingBatchPacks} пач. доступно
+            Ограниченная партия на этой неделе
           </div>
         </div>
       </div>
@@ -489,7 +484,7 @@ export default function Home() {
               </span>
               <span
                 style={{ fontFamily: 'var(--font-mono), monospace' }}
-                className="text-[10px] text-[#2C1E16]/70 uppercase block mt-1"
+                className="text-[10px] text-[#2C1E16]/80 uppercase block mt-1"
               >
                 Минск • ул. Короля, 9
               </span>
@@ -519,7 +514,7 @@ export default function Home() {
               onClick={() => scrollToSection('about')}
               className="hover:text-[#2C1E16]/60 transition-colors cursor-pointer font-bold"
             >
-              [03] Аня и Дима
+              [03] О нас
             </button>
             <button
               type="button"
@@ -553,7 +548,7 @@ export default function Home() {
                 Заявка: {totalPacks} шт. ({totalPrice} BYN)
               </span>
             ) : (
-              <span>Оставить заявку</span>
+              <span>Оформить заказ</span>
             )}
           </button>
         </div>
@@ -565,7 +560,7 @@ export default function Home() {
             <div className="space-y-6">
               <div
                 style={{ fontFamily: 'var(--font-mono), monospace' }}
-                className="inline-flex flex-wrap items-center gap-3 text-xs uppercase text-[#2C1E16]/70 border-b border-[#2C1E16]/10 pb-2"
+                className="inline-flex flex-wrap items-center gap-3 text-xs uppercase text-[#2C1E16]/80 border-b border-[#2C1E16]/10 pb-2"
               >
                 <a
                   href="https://yandex.by/maps/?text=Минск+улица+Короля+9"
@@ -573,12 +568,12 @@ export default function Home() {
                   rel="noreferrer"
                   className="hover:text-[#2C1E16] flex items-center gap-1 underline underline-offset-2"
                 >
-                  <span>Минск, ул. Короля, 9</span>
+                  <span>Мастерская: ул. Короля, 9</span>
                   <Navigation className="w-3 h-3" />
                 </a>
                 <span>•</span>
                 <span className="text-[#2C1E16] font-bold">
-                  Партии по 5 кг в четверг
+                  Свежая обжарка каждый четверг
                 </span>
               </div>
 
@@ -586,11 +581,14 @@ export default function Home() {
                 style={{ fontFamily: 'var(--font-display), sans-serif' }}
                 className="text-3xl sm:text-5xl lg:text-[54px] font-black text-[#2C1E16] uppercase leading-[1.05] tracking-tight"
               >
-                КОФЕ, КОТОРЫЙ ПРИЕЗЖАЕТ К ВАМ НА{' '}
-                <span className="text-[#2C1E16]/60">1–3 ДЕНЬ</span> ПОСЛЕ РОСТЕРА
+                КОФЕ, КОТОРЫЙ ПРИЕЗЖАЕТ К ВАМ{' '}
+                <span className="text-[#2C1E16] underline decoration-[#EAE1D8] decoration-4 underline-offset-4">
+                  ЧЕРЕЗ 1–3 ДНЯ
+                </span>{' '}
+                ПОСЛЕ РОСТЕРА
               </h1>
 
-              <p className="text-base sm:text-lg text-[#2C1E16]/80 leading-relaxed max-w-xl">
+              <p className="text-base sm:text-lg text-[#2C1E16]/90 leading-relaxed max-w-xl">
                 Маленькая минская обжарочная бывших бариста Ани и Дмитрия. Мы не
                 храним кофе на складах месяцами: жарим под заказ в четверг,
                 бесплатно мелем под вашу воронку, турку или рожок и развозим по
@@ -615,7 +613,7 @@ export default function Home() {
                   style={{ fontFamily: 'var(--font-mono), monospace' }}
                   className="bg-transparent hover:bg-[#2C1E16] hover:text-[#FDFBF7] text-[#2C1E16] border border-[#2C1E16] px-7 py-4 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
                 >
-                  Подписка • 54 BYN / мес
+                  Подписка • 49 BYN / мес
                 </button>
               </div>
 
@@ -625,26 +623,26 @@ export default function Home() {
               >
                 <div>
                   <div className="text-xl sm:text-2xl font-bold text-[#2C1E16]">
-                    5 кг
+                    Бесплатно
                   </div>
-                  <div className="text-[#2C1E16]/70 text-[11px] mt-0.5">
-                    партия ростера
+                  <div className="text-[#2C1E16]/80 text-[11px] mt-0.5">
+                    помол под ваш способ
                   </div>
                 </div>
                 <div className="border-l border-[#2C1E16]/10 pl-4">
                   <div className="text-xl sm:text-2xl font-bold text-[#2C1E16]">
                     24–72 ч
                   </div>
-                  <div className="text-[#2C1E16]/70 text-[11px] mt-0.5">
-                    до чашки
+                  <div className="text-[#2C1E16]/80 text-[11px] mt-0.5">
+                    до свежей чашки
                   </div>
                 </div>
                 <div className="border-l border-[#2C1E16]/10 pl-4">
                   <div className="text-xl sm:text-2xl font-bold text-[#2C1E16]">
                     0 BYN
                   </div>
-                  <div className="text-[#2C1E16]/70 text-[11px] mt-0.5">
-                    помол и доставка от 50 BYN
+                  <div className="text-[#2C1E16]/80 text-[11px] mt-0.5">
+                    доставка по Минску от 50 BYN
                   </div>
                 </div>
               </div>
@@ -653,8 +651,8 @@ export default function Home() {
 
           <div className="lg:col-span-5 p-6 sm:p-12 flex flex-col justify-between bg-[#F4EFEA]/50">
             <PhotoCard
-              poster="https://images.unsplash.com/photo-1518832553480-cd0e625ed3e6?q=75&w=600&auto=format&fit=crop"
-              alt="Ростер мастерской Кварта в Минске"
+              poster="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1200&auto=format&fit=crop"
+              alt="Свежая обжарка Кварта"
               className="w-full aspect-[4/4] border border-[#2C1E16]/10"
             />
 
@@ -663,14 +661,12 @@ export default function Home() {
               className="mt-6 p-4 bg-[#FDFBF7] border border-[#2C1E16]/10 text-xs space-y-2"
             >
               <div className="flex justify-between items-center font-bold text-[#2C1E16] border-b border-[#2C1E16]/10 pb-1.5">
-                <span>ПАРТИЯ ЭТОГО ЧЕТВЕРГА</span>
-                <span className="text-[#2C1E16]/70">
-                  СВОБОДНО: {remainingBatchPacks} ПАЧЕК
-                </span>
+                <span>БЛИЖАЙШАЯ ОБЖАРКА</span>
+                <span className="text-[#2C1E16]">{schedule.roastDate}</span>
               </div>
-              <p className="text-[11px] text-[#2C1E16]/70 leading-relaxed">
-                Собираем заказы до вечера среды. В четверг жарим на ул. Короля, 9,
-                а в пятницу развозим свежие пачки по Минску.
+              <p className="text-[11px] text-[#2C1E16]/80 leading-relaxed">
+                Собираем заказы до вечера среды. В четверг жарим в мастерской,
+                а в пятницу развозим свежие пачки по Минску курьером.
               </p>
             </div>
           </div>
@@ -683,7 +679,7 @@ export default function Home() {
             <div className="space-y-2">
               <span
                 style={{ fontFamily: 'var(--font-mono), monospace' }}
-                className="text-xs uppercase text-[#2C1E16]/60 font-bold"
+                className="text-xs uppercase text-[#2C1E16]/70 font-bold"
               >
                 [01] СВЕЖАЯ ОБЖАРКА ЭТОЙ НЕДЕЛИ
               </span>
@@ -696,9 +692,9 @@ export default function Home() {
             </div>
             <p
               style={{ fontFamily: 'var(--font-mono), monospace' }}
-              className="text-xs text-[#2C1E16]/70 max-w-md"
+              className="text-xs text-[#2C1E16]/80 max-w-md"
             >
-              Выберите способ заваривания на этикетке — мы бесплатно смелем
+              Выберите способ заваривания — мы бесплатно смелем
               зерно перед выездом курьера.
             </p>
           </div>
@@ -723,7 +719,7 @@ export default function Home() {
                       <span className="font-bold text-[#2C1E16]">
                         {item.lotNumber} • {item.roastLevel}
                       </span>
-                      <span className="text-[#2C1E16]/70">{item.originInfo}</span>
+                      <span className="text-[#2C1E16]/80">{item.originInfo}</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-12 border-b border-[#2C1E16]/10">
@@ -771,14 +767,14 @@ export default function Home() {
                             ))}
                           </div>
 
-                          <p className="text-xs text-[#2C1E16]/80 leading-relaxed">
+                          <p className="text-xs text-[#2C1E16]/90 leading-relaxed">
                             {item.description}
                           </p>
                         </div>
 
                         <div
                           style={{ fontFamily: 'var(--font-mono), monospace' }}
-                          className="grid grid-cols-2 gap-4 pt-3 border-t border-[#2C1E16]/10 text-[10px] uppercase text-[#2C1E16]/70"
+                          className="grid grid-cols-2 gap-4 pt-3 border-t border-[#2C1E16]/10 text-[10px] uppercase text-[#2C1E16]/80"
                         >
                           <div className="flex items-center justify-between">
                             <span>Кислинка</span>
@@ -800,7 +796,7 @@ export default function Home() {
                           style={{ fontFamily: 'var(--font-mono), monospace' }}
                           className="flex justify-between items-center text-[11px] uppercase"
                         >
-                          <span className="text-[#2C1E16]/70">
+                          <span className="text-[#2C1E16]/80">
                             Выберите помол:
                           </span>
                           <span className="font-bold text-[#2C1E16]">
@@ -826,7 +822,7 @@ export default function Home() {
                                 className={`py-2 px-1 text-[11px] font-bold uppercase border transition-all cursor-pointer ${
                                   active
                                     ? 'bg-[#2C1E16] text-[#FDFBF7] border-[#2C1E16]'
-                                    : 'bg-[#FFFFFF] text-[#2C1E16]/70 border-[#2C1E16]/15 hover:border-[#2C1E16] hover:text-[#2C1E16]'
+                                    : 'bg-[#FFFFFF] text-[#2C1E16]/80 border-[#2C1E16]/15 hover:border-[#2C1E16] hover:text-[#2C1E16]'
                                 }`}
                               >
                                 {grindOption}
@@ -840,7 +836,7 @@ export default function Home() {
                         style={{ fontFamily: 'var(--font-mono), monospace' }}
                         className="py-2.5 px-3 bg-[#FFFFFF] border border-[#2C1E16]/15 flex items-center justify-between text-[11px] uppercase"
                       >
-                        <span className="text-[#2C1E16]/70">Формат помола:</span>
+                        <span className="text-[#2C1E16]/80">Формат помола:</span>
                         <span className="font-bold text-[#2C1E16]">
                           Уже смолот в 10 фильтр-пакетах
                         </span>
@@ -863,7 +859,7 @@ export default function Home() {
                             false
                           )
                         }
-                        className="flex-1 bg-[#F4EFEA] hover:bg-[#2C1E16] hover:text-[#FDFBF7] text-[#2C1E16] border border-[#2C1E16]/15 hover:border-[#2C1E16] py-3.5 px-4 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        className="flex-1 bg-[#2C1E16] hover:bg-[#EAE1D8] text-[#FDFBF7] hover:text-[#2C1E16] py-3.5 px-4 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                       >
                         {isJustAdded ? (
                           <>
@@ -873,26 +869,17 @@ export default function Home() {
                         ) : (
                           <>
                             <Plus className="w-4 h-4" />
-                            Заказать
+                            Добавить в заявку
                           </>
                         )}
                       </button>
 
                       <button
                         type="button"
-                        onClick={() =>
-                          handleAddToOrder(
-                            item.id,
-                            item.name,
-                            item.price,
-                            currentGrind,
-                            'Разовый заказ',
-                            true
-                          )
-                        }
-                        className="bg-[#2C1E16] hover:bg-[#F4EFEA] text-[#FDFBF7] hover:text-[#2C1E16] border border-[#2C1E16] px-4 py-3.5 text-[11px] font-bold uppercase transition-all cursor-pointer shrink-0"
+                        onClick={() => scrollToSection('order-form')}
+                        className="bg-[#FDFBF7] hover:bg-[#F4EFEA] text-[#2C1E16] border border-[#2C1E16]/20 hover:border-[#2C1E16] px-4 py-3.5 text-[11px] font-bold uppercase transition-all cursor-pointer shrink-0"
                       >
-                        Оформить сразу
+                        К оформлению
                       </button>
                     </div>
                   </div>
@@ -913,7 +900,7 @@ export default function Home() {
                 <span className="bg-[#FDFBF7] text-[#2C1E16] px-2.5 py-1 font-bold">
                   [02] КОФЕЙНАЯ ПОДПИСКА
                 </span>
-                <span className="text-[#FDFBF7]/70">
+                <span className="text-[#FDFBF7]/80">
                   2 пачки по 250 г раз в месяц • Бесплатная доставка
                 </span>
               </div>
@@ -925,7 +912,7 @@ export default function Home() {
                 СВЕЖИЙ ЗАПАС КОФЕ КАЖДЫЙ МЕСЯЦ БЕЗ НАПОМИНАНИЙ
               </h3>
 
-              <p className="text-sm text-[#FDFBF7]/80 max-w-2xl leading-relaxed">
+              <p className="text-sm text-[#FDFBF7]/90 max-w-2xl leading-relaxed">
                 Раз в месяц в пятницу курьер привозит вам 2 свежие пачки по 250 г
                 (можно комбинировать любые сорта из каталога). Доставка по Минску
                 для подписчиков всегда бесплатная.
@@ -934,7 +921,7 @@ export default function Home() {
               <div className="pt-2 max-w-md space-y-2">
                 <div
                   style={{ fontFamily: 'var(--font-mono), monospace' }}
-                  className="text-[11px] uppercase text-[#FDFBF7]/70"
+                  className="text-[11px] uppercase text-[#FDFBF7]/80"
                 >
                   Выберите помол для вашей подписки:
                 </div>
@@ -957,7 +944,7 @@ export default function Home() {
                         className={`py-2 px-2 text-xs font-bold uppercase border transition-all cursor-pointer ${
                           active
                             ? 'bg-[#FDFBF7] text-[#2C1E16] border-[#FDFBF7]'
-                            : 'bg-transparent text-[#FDFBF7]/70 border-white/20 hover:text-white'
+                            : 'bg-transparent text-[#FDFBF7]/80 border-white/20 hover:text-white hover:border-white'
                         }`}
                       >
                         {grindOption}
@@ -972,7 +959,7 @@ export default function Home() {
               <div>
                 <div
                   style={{ fontFamily: 'var(--font-mono), monospace' }}
-                  className="text-xs uppercase text-[#FDFBF7]/70"
+                  className="text-xs uppercase text-[#FDFBF7]/80"
                 >
                   Стоимость подписки:
                 </div>
@@ -980,7 +967,7 @@ export default function Home() {
                   style={{ fontFamily: 'var(--font-display), sans-serif' }}
                   className="text-4xl font-black text-white mt-1"
                 >
-                  54 BYN{' '}
+                  49 BYN{' '}
                   <span className="text-sm font-normal text-[#FDFBF7]/70">
                     / мес
                   </span>
@@ -999,7 +986,7 @@ export default function Home() {
                   handleAddToOrder(
                     'subscription',
                     'Подписка (2 пачки по 250 г / мес)',
-                    54,
+                    49,
                     grinds.subscription || 'Зерно',
                     'Подписка',
                     true
@@ -1023,7 +1010,7 @@ export default function Home() {
           <div className="lg:col-span-6 space-y-6">
             <span
               style={{ fontFamily: 'var(--font-mono), monospace' }}
-              className="text-xs uppercase text-[#2C1E16]/60 font-bold"
+              className="text-xs uppercase text-[#2C1E16]/70 font-bold"
             >
               [03] КТО МЫ И ПОЧЕМУ СВЕЖЕСТЬ ВАЖНА
             </span>
@@ -1032,10 +1019,10 @@ export default function Home() {
               style={{ fontFamily: 'var(--font-display), sans-serif' }}
               className="text-2xl sm:text-4xl font-black text-[#2C1E16] uppercase leading-tight"
             >
-              «МЫ ОТКРЫЛИ КВАРТУ В 2019 ГОДУ, ПОТОМУ ЧТО УСТАЛИ ОТ ПЕРЕСУШЕННОГО КОФЕ»
+              «МЫ ОТКРЫЛИ КВАРТУ, ПОТОМУ ЧТО УСТАЛИ ОТ ПЕРЕСУШЕННОГО КОФЕ»
             </h2>
 
-            <div className="space-y-4 text-sm sm:text-base text-[#2C1E16]/80 leading-relaxed">
+            <div className="space-y-4 text-sm sm:text-base text-[#2C1E16]/90 leading-relaxed">
               <p>
                 Привет! Мы Аня и Дмитрий. До открытия своей мастерской на улице
                 Короля мы несколько лет работали бариста в минских кофейнях. Там
@@ -1043,7 +1030,7 @@ export default function Home() {
                 ароматических масел уже через месяц после обжарки.
               </p>
               <p>
-                Поэтому в «Кварте» нет склада готовой продукции. Мы жарим кофе
+                Поэтому в «Кварте» нет огромного склада. Мы жарим кофе
                 маленькими партиями по <strong>5 килограммов</strong> строго по
                 четвергам — ровно столько, сколько вы заказали на этой неделе. В
                 пятницу пачка уже у вас дома или в офисе.
@@ -1054,25 +1041,23 @@ export default function Home() {
               style={{ fontFamily: 'var(--font-mono), monospace' }}
               className="p-4 bg-[#FDFBF7] border border-[#2C1E16]/10 text-xs flex items-center justify-between"
             >
-              <span className="text-[#2C1E16]/80">Аня и Дмитрий, основатели</span>
+              <span className="text-[#2C1E16]/80 font-bold">Аня и Дмитрий, основатели</span>
               <a
-                href="tel:+375291234567"
+                href="tel:+375296841122"
                 className="font-bold text-[#2C1E16] hover:underline"
               >
-                +375 (29) 123-45-67
+                +375 (29) 684-11-22
               </a>
             </div>
           </div>
 
-          <div className="lg:col-span-6 bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 sm:p-8 space-y-6">
-            <div
-              style={{ fontFamily: 'var(--font-mono), monospace' }}
-              className="text-xs font-bold uppercase text-[#2C1E16] border-b border-[#2C1E16]/10 pb-3"
-            >
-              КАК УСТРОЕНА НАША НЕДЕЛЯ В МАСТЕРСКОЙ:
-            </div>
-
-            <div className="space-y-5">
+          <div className="lg:col-span-6 space-y-6">
+             <PhotoCard
+              poster="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=1200&auto=format&fit=crop"
+              alt="Основатели Кварты"
+              className="w-full aspect-[16/9] border border-[#2C1E16]/10"
+            />
+            <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 space-y-5">
               <div className="grid grid-cols-12 gap-4 border-b border-[#2C1E16]/10 pb-4">
                 <div
                   style={{ fontFamily: 'var(--font-mono), monospace' }}
@@ -1082,10 +1067,9 @@ export default function Home() {
                 </div>
                 <div className="col-span-8 text-xs text-[#2C1E16]/80 leading-relaxed">
                   <strong className="text-[#2C1E16] block mb-0.5">
-                    Принимаем заявки и консультируем
+                    Принимаем заявки
                   </strong>
-                  Формируем план обжарки по сортам. Мастерская на Короля, 9
-                  открыта с 8:00 до 20:00.
+                  Формируем план обжарки по сортам. Мастерская открыта с 8:00 до 20:00.
                 </div>
               </div>
 
@@ -1100,8 +1084,7 @@ export default function Home() {
                   <strong className="text-[#2C1E16] block mb-0.5">
                     День обжарки (партии по 5 кг)
                   </strong>
-                  Жарим Эфиопию, Колумбию и Бразилию, проверяем профиль и фасуем
-                  в пачки с клапаном.
+                  Жарим свежее зерно, проверяем профиль и фасуем в пачки с клапаном.
                 </div>
               </div>
 
@@ -1114,10 +1097,9 @@ export default function Home() {
                 </div>
                 <div className="col-span-8 text-xs text-[#2C1E16]/80 leading-relaxed">
                   <strong className="text-[#2C1E16] block mb-0.5">
-                    Помол и развозка по Минску
+                    Помол и развозка
                   </strong>
-                  Мелем пачки под ваш способ и развозим по домам и офисам Минска.
-                  От 50 BYN — доставка бесплатная.
+                  Мелем пачки под ваш способ и бесплатно развозим по Минску заказы от 50 BYN.
                 </div>
               </div>
             </div>
@@ -1131,7 +1113,7 @@ export default function Home() {
             <div>
               <span
                 style={{ fontFamily: 'var(--font-mono), monospace' }}
-                className="text-xs uppercase text-[#2C1E16]/60 font-bold"
+                className="text-xs uppercase text-[#2C1E16]/70 font-bold"
               >
                 [04] ОБРАТНАЯ СВЯЗЬ ПОСЛЕ ПЯТНИЧНЫХ РАЗВОЗОК
               </span>
@@ -1139,12 +1121,12 @@ export default function Home() {
                 style={{ fontFamily: 'var(--font-display), sans-serif' }}
                 className="text-2xl sm:text-4xl font-black text-[#2C1E16] uppercase mt-1"
               >
-                ЧТО ПИШУТ НАМ В ПЯТНИЦУ УТРОМ
+                ЧТО ПИШУТ НАМ В ПЯТНИЦУ
               </h2>
             </div>
             <span
               style={{ fontFamily: 'var(--font-mono), monospace' }}
-              className="text-xs text-[#2C1E16]/70"
+              className="text-xs text-[#2C1E16]/80"
             >
               Из сообщений в Instagram и Telegram мастерской
             </span>
@@ -1162,7 +1144,7 @@ export default function Home() {
                       src={item.photo}
                       alt={item.name}
                       loading="lazy"
-                      className="w-12 h-12 object-cover border border-[#2C1E16]/10"
+                      className="w-12 h-12 object-cover border border-[#2C1E16]/10 rounded-full"
                     />
                     <div>
                       <div className="font-bold text-sm text-[#2C1E16]">
@@ -1170,7 +1152,7 @@ export default function Home() {
                       </div>
                       <div
                         style={{ fontFamily: 'var(--font-mono), monospace' }}
-                        className="text-[10px] text-[#2C1E16]/60 uppercase"
+                        className="text-[10px] text-[#2C1E16]/70 uppercase"
                       >
                         {item.context}
                       </div>
@@ -1184,7 +1166,7 @@ export default function Home() {
 
                 <div
                   style={{ fontFamily: 'var(--font-mono), monospace' }}
-                  className="bg-[#F4EFEA]/80 p-3 text-[11px] text-[#2C1E16]/80 border-l-2 border-[#2C1E16]"
+                  className="bg-[#F4EFEA]/80 p-3 text-[11px] text-[#2C1E16]/90 border-l-2 border-[#2C1E16]"
                 >
                   <strong className="text-[#2C1E16] block">Ответ Кварты:</strong>
                   {item.reply}
@@ -1202,7 +1184,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 sm:p-8 space-y-5">
             <PhotoCard
-              poster="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=75&w=600&auto=format&fit=crop"
+              poster="https://images.unsplash.com/photo-1498804103079-a6351b050096?q=80&w=1200&auto=format&fit=crop"
               alt="Мастерская Кварта на Короля, 9"
               className="h-60 border border-[#2C1E16]/10"
             />
@@ -1219,7 +1201,7 @@ export default function Home() {
                   href="https://yandex.by/maps/?text=Минск+улица+Короля+9"
                   target="_blank"
                   rel="noreferrer"
-                  className="underline text-[#2C1E16]/70 hover:text-[#2C1E16] flex items-center gap-1"
+                  className="underline text-[#2C1E16]/80 hover:text-[#2C1E16] flex items-center gap-1"
                 >
                   <span>На карте</span>
                   <Navigation className="w-3 h-3" />
@@ -1231,7 +1213,7 @@ export default function Home() {
               >
                 Минск, ул. Короля, 9
               </h3>
-              <p className="text-xs text-[#2C1E16]/80 leading-relaxed">
+              <p className="text-xs text-[#2C1E16]/90 leading-relaxed">
                 Заходите познакомиться лично: поможем выбрать сорт по вкусу,
                 смелем пачку при вас и нальём свежий фильтр.
               </p>
@@ -1239,7 +1221,7 @@ export default function Home() {
                 style={{ fontFamily: 'var(--font-mono), monospace' }}
                 className="inline-flex items-center gap-2 text-xs text-[#2C1E16] font-bold pt-1"
               >
-                <Clock className="w-4 h-4 text-[#2C1E16]/60" />
+                <Clock className="w-4 h-4 text-[#2C1E16]/70" />
                 Пн–Пт: 8:00–20:00 | Сб–Вс: 10:00–18:00
               </div>
             </div>
@@ -1247,7 +1229,7 @@ export default function Home() {
 
           <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 sm:p-8 space-y-5">
             <PhotoCard
-              poster="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=75&w=600&auto=format&fit=crop"
+              poster="https://images.unsplash.com/photo-1615486171448-4fb324ab226b?q=80&w=1200&auto=format&fit=crop"
               alt="Пятничная доставка по Минску"
               className="h-60 border border-[#2C1E16]/10"
             />
@@ -1265,7 +1247,7 @@ export default function Home() {
               >
                 Доставка по Минску в пятницу
               </h3>
-              <p className="text-xs text-[#2C1E16]/80 leading-relaxed">
+              <p className="text-xs text-[#2C1E16]/90 leading-relaxed">
                 Развозим свежую четверговую обжарку каждую пятницу домой и в
                 офисы. При заказе от 50 BYN или подписке доставка бесплатная.
               </p>
@@ -1286,7 +1268,7 @@ export default function Home() {
             <div className="space-y-2 border-b border-white/10 pb-6">
               <span
                 style={{ fontFamily: 'var(--font-mono), monospace' }}
-                className="text-xs uppercase text-[#FDFBF7]/60 font-bold"
+                className="text-xs uppercase text-[#FDFBF7]/70 font-bold"
               >
                 ОФОРМЛЕНИЕ ЗАЯВКИ БЕЗ ПРЕДОПЛАТЫ
               </span>
@@ -1294,9 +1276,9 @@ export default function Home() {
                 style={{ fontFamily: 'var(--font-display), sans-serif' }}
                 className="text-2xl sm:text-3xl font-black uppercase"
               >
-                ЗАКАЗАТЬ СВЕЖУЮ ОБЖАРКУ
+                ОФОРМИТЬ ЗАКАЗ
               </h2>
-              <p className="text-xs text-[#FDFBF7]/80 leading-relaxed">
+              <p className="text-xs text-[#FDFBF7]/90 leading-relaxed">
                 Оставьте имя и белорусский номер телефона. Менеджер перезвонит,
                 чтобы согласовать пятничную доставку по Минску или самовывоз с
                 Короля, 9.
@@ -1313,7 +1295,7 @@ export default function Home() {
                 >
                   <div
                     style={{ fontFamily: 'var(--font-mono), monospace' }}
-                    className="flex items-center justify-between text-[11px] uppercase text-[#FDFBF7]/70"
+                    className="flex items-center justify-between text-[11px] uppercase text-[#FDFBF7]/80"
                   >
                     <span>Состав вашей заявки:</span>
                     <span>
@@ -1341,7 +1323,7 @@ export default function Home() {
                           </div>
                           <div
                             style={{ fontFamily: 'var(--font-mono), monospace' }}
-                            className="text-[11px] text-[#FDFBF7]/60"
+                            className="text-[11px] text-[#FDFBF7]/70"
                           >
                             Помол: {item.grind} • {item.price} BYN
                           </div>
@@ -1387,7 +1369,7 @@ export default function Home() {
                     style={{ fontFamily: 'var(--font-mono), monospace' }}
                     className="flex items-center justify-between pt-3 border-t border-white/10 text-xs"
                   >
-                    <span className="text-[#FDFBF7]/80">Итого к заказу:</span>
+                    <span className="text-[#FDFBF7]/90">Итого к заказу:</span>
                     <span className="font-bold text-base text-white">
                       {totalPrice} BYN
                     </span>
@@ -1407,7 +1389,7 @@ export default function Home() {
                 </h3>
                 <p
                   style={{ fontFamily: 'var(--font-mono), monospace' }}
-                  className="text-xs leading-relaxed text-white/80"
+                  className="text-xs leading-relaxed text-white/90"
                 >
                   {successMsg}
                 </p>
@@ -1425,7 +1407,7 @@ export default function Home() {
                 <div className="space-y-2">
                   <label
                     style={{ fontFamily: 'var(--font-mono), monospace' }}
-                    className="block text-[11px] uppercase text-[#FDFBF7]/70"
+                    className="block text-[11px] uppercase text-[#FDFBF7]/80"
                   >
                     Тип обращения
                   </label>
@@ -1437,7 +1419,7 @@ export default function Home() {
                   >
                     <option value="Разовый заказ">Разовый заказ кофе</option>
                     <option value="Подписка">
-                      Подписка на месяц (54 BYN / 2 пачки)
+                      Подписка на месяц (49 BYN / 2 пачки)
                     </option>
                     <option value="Вопрос">Вопрос по зерну или помолу</option>
                   </select>
@@ -1447,12 +1429,12 @@ export default function Home() {
                   <div className="space-y-2">
                     <label
                       style={{ fontFamily: 'var(--font-mono), monospace' }}
-                      className="block text-[11px] uppercase text-[#FDFBF7]/70"
+                      className="block text-[11px] uppercase text-[#FDFBF7]/80"
                     >
                       Ваше имя *
                     </label>
                     <div className="relative">
-                      <User className="w-4 h-4 text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <User className="w-4 h-4 text-white/50 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         required
@@ -1460,7 +1442,7 @@ export default function Home() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         style={{ fontFamily: 'var(--font-mono), monospace' }}
-                        className="w-full bg-[#1A120D] border border-white/10 pl-10 pr-4 py-3.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white transition"
+                        className="w-full bg-[#1A120D] border border-white/10 pl-10 pr-4 py-3.5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white transition"
                       />
                     </div>
                   </div>
@@ -1468,12 +1450,12 @@ export default function Home() {
                   <div className="space-y-2">
                     <label
                       style={{ fontFamily: 'var(--font-mono), monospace' }}
-                      className="block text-[11px] uppercase text-[#FDFBF7]/70"
+                      className="block text-[11px] uppercase text-[#FDFBF7]/80"
                     >
                       Белорусский номер *
                     </label>
                     <div className="relative">
-                      <Phone className="w-4 h-4 text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <Phone className="w-4 h-4 text-white/50 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="tel"
                         required
@@ -1485,36 +1467,28 @@ export default function Home() {
                           )
                         }
                         style={{ fontFamily: 'var(--font-mono), monospace' }}
-                        className="w-full bg-[#1A120D] border border-white/10 pl-10 pr-4 py-3.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white transition"
+                        className="w-full bg-[#1A120D] border border-white/10 pl-10 pr-4 py-3.5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white transition"
                       />
                     </div>
                   </div>
                 </div>
 
-                <span
-                  style={{ fontFamily: 'var(--font-mono), monospace' }}
-                  className="text-[10px] text-white/40 block -mt-2"
-                >
-                  Коды операторов РБ: 29, 33, 44, 25, 17 (принимаются форматы
-                  +375 и 80).
-                </span>
-
                 <div className="space-y-2">
                   <label
                     style={{ fontFamily: 'var(--font-mono), monospace' }}
-                    className="block text-[11px] uppercase text-[#FDFBF7]/70"
+                    className="block text-[11px] uppercase text-[#FDFBF7]/80"
                   >
-                    Адрес пятничной доставки или комментарий (необязательно)
+                    Адрес доставки или комментарий (необязательно)
                   </label>
                   <div className="relative">
-                    <MessageSquare className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5 pointer-events-none" />
+                    <MessageSquare className="w-4 h-4 text-white/50 absolute left-3.5 top-3.5 pointer-events-none" />
                     <textarea
                       rows={3}
                       placeholder="Улица и дом для курьера в пятницу, либо напишите «самовывоз с Короля, 9»..."
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       style={{ fontFamily: 'var(--font-mono), monospace' }}
-                      className="w-full bg-[#1A120D] border border-white/10 pl-10 pr-4 py-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white transition"
+                      className="w-full bg-[#1A120D] border border-white/10 pl-10 pr-4 py-3 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-white transition"
                     />
                   </div>
                 </div>
@@ -1527,25 +1501,35 @@ export default function Home() {
                     <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                     <div className="space-y-1">
                       <div className="font-bold text-red-200">Ошибка ввода</div>
-                      <div className="text-[11px] text-red-300/80">
+                      <div className="text-[11px] text-red-300/90">
                         {error}
                       </div>
                     </div>
                   </div>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{ fontFamily: 'var(--font-mono), monospace' }}
-                  className="w-full bg-[#FDFBF7] hover:bg-white text-[#2C1E16] font-bold text-xs uppercase tracking-wider py-4 transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  {loading
-                    ? 'Отправляем заявку...'
-                    : totalPrice > 0
-                    ? `Отправить заявку • ${totalPrice} BYN`
-                    : 'Отправить заявку'}
-                </button>
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    style={{ fontFamily: 'var(--font-mono), monospace' }}
+                    className="w-full bg-[#FDFBF7] hover:bg-white text-[#2C1E16] font-bold text-xs uppercase tracking-wider py-4 transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {loading
+                      ? 'Отправляем заявку...'
+                      : totalPrice > 0
+                      ? `Оформить заказ • ${totalPrice} BYN`
+                      : 'Оформить заказ'}
+                  </button>
+                  <div className="text-center mt-4">
+                    <span
+                      style={{ fontFamily: 'var(--font-mono), monospace' }}
+                      className="text-[9px] text-[#FDFBF7]/50 uppercase"
+                    >
+                      Нажимая кнопку, вы даете согласие на обработку персональных данных
+                    </span>
+                  </div>
+                </div>
               </form>
             )}
           </div>
@@ -1556,20 +1540,23 @@ export default function Home() {
         style={{ fontFamily: 'var(--font-mono), monospace' }}
         className="border-t border-[#2C1E16]/10 bg-[#F4EFEA] py-10"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-[#2C1E16]/80">
-          <div>
-            <strong className="text-[#2C1E16] uppercase">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-xs text-[#2C1E16]/80">
+          <div className="space-y-2">
+            <div className="font-bold text-[#2C1E16] uppercase">
               ОБЖАРКА «КВАРТА»
-            </strong>{' '}
-            • Минск, ул. Короля, 9 (Пн–Пт 8:00–20:00, Сб–Вс 10:00–18:00)
+            </div>
+            <div>Минск, ул. Короля, 9 (Пн–Пт 8:00–20:00, Сб–Вс 10:00–18:00)</div>
+            <div className="text-[10px] text-[#2C1E16]/60">
+              ИП Дороховец А.А. • УНП 193456789
+            </div>
           </div>
-          <div>
-            Телефон для связи:{' '}
+          <div className="text-left md:text-right">
+            <div className="mb-1">Телефон для связи:</div>
             <a
-              href="tel:+375291234567"
-              className="font-bold text-[#2C1E16] underline"
+              href="tel:+375296841122"
+              className="font-bold text-lg text-[#2C1E16] hover:underline"
             >
-              +375 (29) 123-45-67
+              +375 (29) 684-11-22
             </a>
           </div>
         </div>
