@@ -10,7 +10,6 @@ interface LeadRecord {
   createdAt: string;
 }
 
-// Временное хранилище заявок в памяти сервера
 const memoryLeads: LeadRecord[] = [];
 
 export async function POST(request: Request) {
@@ -45,9 +44,7 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    // Сохраняем в память
     memoryLeads.push(newLead);
-    console.log('Новая заявка получена:', newLead);
 
     return NextResponse.json(
       {
