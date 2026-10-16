@@ -1,0 +1,105 @@
+[
+  {
+    "id": "1792076082781",
+    "name": "Иосиф ",
+    "phone": "+375259658428",
+    "topic": "Подписка (Колумбия Уила (29 BYN))",
+    "comment": "мамамам",
+    "utm": {
+      "source": "direct",
+      "medium": "none",
+      "campaign": "none",
+      "pageUrl": "http://localhost:3000/#catalog"
+    },
+    "createdAt": "2026-10-15T14:54:42.781Z"
+  },
+  {
+    "id": "1792095966395",
+    "name": "ИПАИПАИ",
+    "phone": "+375258658428",
+    "topic": "Разовый заказ ",
+    "comment": "вавававава",
+    "utm": {
+      "source": "direct",
+      "medium": "none",
+      "campaign": "none",
+      "pageUrl": "http://localhost:3000/"
+    },
+    "createdAt": "2026-10-15T20:26:06.395Z"
+  },
+  {
+    "id": "1792099051446",
+    "name": "прпр",
+    "phone": "+375 259652889",
+    "topic": "Вопрос (Колумбия Уила, Помол: Эспрессо)",
+    "comment": "",
+    "utm": {
+      "source": "direct",
+      "medium": "none",
+      "campaign": "none",
+      "pageUrl": "http://localhost:3000/"
+    },
+    "createdAt": "2026-10-15T21:17:31.446Z"
+  },
+  {
+    "id": "1792100185211",
+    "name": "иаапап",
+    "phone": "+375 (25) 965-84-28",
+    "normalizedPhone": "375259658428",
+    "topic": "Подписка (Эфиопия Иргачеффе [помол: Фильтр] × 1 шт. (32 BYN); Колумбия Уила [помол: Зерно] × 1 шт. (29 BYN); Бразилия Серрадо [помол: Эспрессо] × 1 шт. (26 BYN); Дрип-пакеты, ассорти [помол: Дрип-пакет (молотый)] × 1 шт. (18 BYN); Подписка (2 пачки по 250 г / мес) [помол: Турка] × 1 шт. (54 BYN) | Сумма: 159 BYN)",
+    "items": [
+      {
+        "key": "ethiopia-Фильтр",
+        "id": "ethiopia",
+        "name": "Эфиопия Иргачеффе",
+        "price": 32,
+        "grind": "Фильтр",
+        "qty": 1
+      },
+      {
+        "key": "colombia-Зерно",
+        "id": "colombia",
+        "name": "Колумбия Уила",
+        "price": 29,
+        "grind": "Зерно",
+        "qty": 1
+      },
+      {
+        "key": "brazil-Эспрессо",
+        "id": "brazil",
+        "name": "Бразилия Серрадо",
+        "price": 26,
+        "grind": "Эспрессо",
+        "qty": 1
+      },
+      {
+        "key": "drips-Дрип-пакет (молотый)",
+        "id": "drips",
+        "name": "Дрип-пакеты, ассорти",
+        "price": 18,
+        "grind": "Дрип-пакет (молотый)",
+        "qty": 1
+      },
+      {
+        "key": "subscription-Турка",
+        "id": "subscription",
+        "name": "Подписка (2 пачки по 250 г / мес)",
+        "price": 54,
+        "grind": "Турка",
+        "qty": 1
+      }
+    ],
+    "totalPrice": 159,
+    "comment": "",
+    "utm": {
+      "source": "direct",
+      "medium": "none",
+      "campaign": "none",
+      "content": "none",
+      "term": "none",
+      "referrer": "direct",
+      "pageUrl": "http://localhost:3000/"
+    },
+    "createdAt": "2026-10-15T21:36:25.211Z"
+  }
+]
