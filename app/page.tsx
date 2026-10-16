@@ -1229,7 +1229,7 @@ export default function Home() {
 
           <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 sm:p-8 space-y-5">
             <PhotoCard
-              poster="https://images.unsplash.com/photo-1615486171448-4fb324ab226b?q=80&w=1200&auto=format&fit=crop"
+              poster="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=1200&auto=format&fit=crop"
               alt="Пятничная доставка по Минску"
               className="h-60 border border-[#2C1E16]/10"
             />
