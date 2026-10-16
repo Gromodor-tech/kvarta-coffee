@@ -27,9 +27,14 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!phone) {
+    // Восстановленная жесткая валидация
+    const digits = phone.replace(/\D/g, '');
+    const operator = digits.length >= 5 ? digits.slice(3, 5) : '';
+    const validOperators = ['29', '33', '44', '25', '17'];
+
+    if (digits.length !== 12 || !digits.startsWith('375') || !validOperators.includes(operator)) {
       return NextResponse.json(
-        { error: 'Пожалуйста, укажите номер телефона.' },
+        { error: 'Укажите корректный белорусский номер (коды 29, 33, 44, 25, 17).' },
         { status: 400 }
       );
     }
