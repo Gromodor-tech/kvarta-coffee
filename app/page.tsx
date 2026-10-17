@@ -377,6 +377,13 @@ export default function Home() {
       return;
     }
 
+    // ДЕДУПЛИКАЦИЯ НА ФРОНТЕНДЕ (защита от двойного клика и спама)
+    const lastSubmit = localStorage.getItem(`lead_${digits}`);
+    if (lastSubmit && Date.now() - parseInt(lastSubmit, 10) < 10 * 60 * 1000) {
+      setError('Вы уже отправляли заявку с этого номера только что. Пожалуйста, подождите 10 минут перед новой отправкой.');
+      return;
+    }
+
     setLoading(true);
 
     const params = new URLSearchParams(window.location.search);
@@ -424,6 +431,9 @@ export default function Home() {
       if (!res.ok) {
         throw new Error(data.error || 'Ошибка отправки заявки');
       }
+
+      // Запоминаем в браузере, что с этого номера заявка уже ушла
+      localStorage.setItem(`lead_${digits}`, Date.now().toString());
 
       setSuccessMsg(
         data.message ||
@@ -1229,7 +1239,7 @@ export default function Home() {
 
           <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 sm:p-8 space-y-5">
             <PhotoCard
-              poster="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=1200&auto=format&fit=crop"
+              poster="https://images.unsplash.com/photo-1615486171448-4fb324ab226b?q=80&w=1200&auto=format&fit=crop"
               alt="Пятничная доставка по Минску"
               className="h-60 border border-[#2C1E16]/10"
             />
