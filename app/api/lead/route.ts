@@ -23,17 +23,34 @@ interface LeadRecord {
 
 const memoryLeads: LeadRecord[] = [];
 
+// Функция экранирования для безопасного HTML в Telegram
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Невалидный формат JSON.' },
+        { status: 400 }
+      );
+    }
+
     const name = String(body.name || '').trim();
     const phone = String(body.phone || '').trim();
     const topic = String(body.topic || 'Разовый заказ').trim();
     const comment = String(body.comment || '').trim();
 
-    if (name.length < 2) {
+    if (name.length < 2 || name.length > 50) {
       return NextResponse.json(
-        { error: 'Пожалуйста, укажите ваше имя (минимум 2 символа).' },
+        { error: 'Укажите корректное имя (от 2 до 50 символов).' },
         { status: 400 }
       );
     }
@@ -53,7 +70,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // ДЕДУПЛИКАЦИЯ: защита от двойного клика и спама за последние 10 минут
+    // ДЕДУПЛИКАЦИЯ НА СЕРВЕРЕ (10 минут)
     const tenMinsAgo = Date.now() - 10 * 60 * 1000;
     const isDuplicate = memoryLeads.some(
       (lead) =>
@@ -63,10 +80,26 @@ export async function POST(request: Request) {
 
     if (isDuplicate) {
       return NextResponse.json(
-        { error: 'Вы уже отправили заявку недавно. Пожалуйста, подождите 10 минут.' },
-        { status: 429 }
+        { 
+          success: true, 
+          isDuplicate: true,
+          message: 'Заявка с этого номера уже была отправлена недавно. Менеджер уже обрабатывает её!' 
+        },
+        { status: 200 }
       );
     }
+
+    const utmData = {
+      source: String(body.utmSource || 'direct').slice(0, 50),
+      medium: String(body.utmMedium || 'none').slice(0, 50),
+      campaign: String(body.utmCampaign || 'none').slice(0, 50),
+      content: String(body.utmContent || 'none').slice(0, 50),
+      term: String(body.utmTerm || 'none').slice(0, 50),
+      yclid: String(body.yclid || 'none').slice(100),
+      fbclid: String(body.fbclid || 'none').slice(100),
+      referrer: String(body.referrer || 'direct').slice(100),
+      pageUrl: String(body.pageUrl || '').slice(200),
+    };
 
     const newLead: LeadRecord = {
       id: `lead_${Date.now()}`,
@@ -76,38 +109,29 @@ export async function POST(request: Request) {
       comment,
       totalPrice: Number(body.totalPrice || 0),
       createdAt: new Date().toISOString(),
-      utmData: {
-        source: body.utmSource || 'direct',
-        medium: body.utmMedium || 'none',
-        campaign: body.utmCampaign || 'none',
-        content: body.utmContent || 'none',
-        term: body.utmTerm || 'none',
-        yclid: body.yclid || 'none',
-        fbclid: body.fbclid || 'none',
-        referrer: body.referrer || 'direct',
-        pageUrl: body.pageUrl || '',
-      },
+      utmData,
     };
 
     memoryLeads.push(newLead);
 
-    // ОПЦИОНАЛЬНАЯ ОТПРАВКА В TELEGRAM (для постоянного хранения на Serverless)
+    // ОТПРАВКА В TELEGRAM С ЭКРАНИРОВАНИЕМ
     const tgToken = process.env.TELEGRAM_BOT_TOKEN;
     const tgChatId = process.env.TELEGRAM_CHAT_ID;
 
     if (tgToken && tgChatId) {
       const text = [
         `☕ <b>Новая заявка «Кварта»</b>`,
-        `👤 <b>Имя:</b> ${newLead.name}`,
-        `📞 <b>Телефон:</b> ${newLead.phone}`,
-        `📦 <b>Заказ:</b> ${newLead.topic}`,
-        newLead.comment ? `💬 <b>Комментарий:</b> ${newLead.comment}` : '',
-        `🔗 <b>Источник:</b> ${newLead.utmData?.source} / ${newLead.utmData?.medium} (yclid: ${newLead.utmData?.yclid}, fbclid: ${newLead.utmData?.fbclid})`,
+        `👤 <b>Имя:</b> ${escapeHtml(newLead.name)}`,
+        `📞 <b>Телефон:</b> ${escapeHtml(newLead.phone)}`,
+        `📦 <b>Заказ:</b> ${escapeHtml(newLead.topic)}`,
+        newLead.comment ? `💬 <b>Комментарий:</b> ${escapeHtml(newLead.comment)}` : '',
+        `🔗 <b>Метки:</b> src: ${escapeHtml(utmData.source)} | med: ${escapeHtml(utmData.medium)} | cmp: ${escapeHtml(utmData.campaign)}`,
+        `📄 <b>Страница:</b> ${escapeHtml(utmData.pageUrl)}`,
       ]
         .filter(Boolean)
         .join('\n');
 
-      await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+      const tgRes = await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -115,20 +139,24 @@ export async function POST(request: Request) {
           text,
           parse_mode: 'HTML',
         }),
-      }).catch((err) => console.error('Ошибка отправки в Telegram:', err));
+      });
+
+      if (!tgRes.ok) {
+        console.error('Ошибка отправки в Telegram API');
+      }
     }
 
     return NextResponse.json(
       {
         success: true,
-        message:
-          'Заявка принята! Аня или Дмитрий перезвонят вам для подтверждения заказа.',
+        message: 'Заявка принята! Аня или Дмитрий перезвонят вам для подтверждения заказа.',
       },
       { status: 200 }
     );
-  } catch {
+  } catch (err) {
+    console.error('API Error:', err);
     return NextResponse.json(
-      { error: 'Внутренняя ошибка сервера при обработке заявки.' },
+      { error: 'Внутренняя ошибка сервера. Пожалуйста, попробуйте позже или позвоните нам.' },
       { status: 500 }
     );
   }

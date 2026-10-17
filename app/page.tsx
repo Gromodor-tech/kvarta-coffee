@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin,
@@ -166,6 +166,7 @@ function formatBYPhoneInput(raw: string, prevValue = ''): string {
   }
 
   if (!digits) return '';
+  if (digits === '8') return '8';
 
   if (isDeleting && digits.length <= 3 && '375'.startsWith(digits)) {
     return '';
@@ -263,7 +264,18 @@ export default function Home() {
   useEffect(() => {
     const now = new Date();
     const day = now.getDay();
-    const diffToThursday = (4 - day + 7) % 7;
+    const hour = now.getHours();
+
+    // Если среда после 18:00 или четверг до обжарки, показываем следующую неделю по задумке аудита
+    let diffToThursday = (4 - day + 7) % 7;
+    if (day === 3 && hour >= 18) {
+      diffToThursday = 7;
+    } else if (day === 4 && hour < 15) {
+      diffToThursday = 0;
+    } else if (day === 4 && hour >= 15) {
+      diffToThursday = 7;
+    }
+
     const nextThursday = new Date(now);
     nextThursday.setDate(now.getDate() + diffToThursday);
 
@@ -297,6 +309,8 @@ export default function Home() {
   const [comment, setComment] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const isSubmittingRef = useRef(false); // Защита от двойного клика через useRef
+
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -316,7 +330,14 @@ export default function Home() {
     scrollImmediately = false
   ) => {
     const key = `${id}-${grind}`;
-    setTopic(defaultTopic);
+    
+    // Если в заказе уже есть подписка, не меняем topic на разовый
+    const hasSubInCart = orderItems.some(i => i.id === 'subscription') || id === 'subscription';
+    if (!hasSubInCart) {
+      setTopic(defaultTopic);
+    } else {
+      setTopic('Подписка');
+    }
 
     setOrderItems((prev) => {
       const existing = prev.find((item) => item.key === key);
@@ -362,7 +383,7 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return;
+    if (loading || isSubmittingRef.current) return;
 
     setError('');
     setSuccessMsg('');
@@ -372,7 +393,6 @@ export default function Home() {
       return;
     }
 
-    // СТРОГАЯ ВАЛИДАЦИЯ НОМЕРА
     const digits = phone.replace(/\D/g, '');
     const operator = digits.length >= 5 ? digits.slice(3, 5) : '';
     const validOperators = ['29', '33', '44', '25', '17'];
@@ -383,27 +403,14 @@ export default function Home() {
       !validOperators.includes(operator)
     ) {
       setError(
-        'Укажите корректный код оператора РБ (29, 33, 44, 25 или 17) и полный номер телефона.'
+        'Укажите корректный белорусский номер (коды 29, 33, 44, 25, 17).'
       );
       return;
     }
 
-    // ДЕДУПЛИКАЦИЯ НА ФРОНТЕНДЕ (защита от двойного клика и спама на 10 минут)
-    try {
-      const lastSubmit = localStorage.getItem(`lead_${digits}`);
-      if (lastSubmit && Date.now() - parseInt(lastSubmit, 10) < 10 * 60 * 1000) {
-        setError(
-          'Вы уже отправляли заявку с этого номера недавно. Пожалуйста, подождите 10 минут перед повторной отправкой.'
-        );
-        return;
-      }
-    } catch {
-      // Игнорируем ошибку, если localStorage заблокирован в режиме инкогнито
-    }
-
     setLoading(true);
+    isSubmittingRef.current = true;
 
-    // СБОР ВСЕХ UTM-МЕТОК И CLID ПО ТЗ
     const params = new URLSearchParams(window.location.search);
     const utmSource = params.get('utm_source') || 'direct';
     const utmMedium = params.get('utm_medium') || 'none';
@@ -448,21 +455,15 @@ export default function Home() {
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data.error || 'Ошибка отправки заявки');
-      }
-
-      try {
-        localStorage.setItem(`lead_${digits}`, Date.now().toString());
-      } catch {
-        // Игнорируем ошибку в режиме инкогнито
+        throw new Error(data.error || 'Ошибка связи с сервером.');
       }
 
       setSuccessMsg(
         data.message ||
-          'Заявка у нас! Аня или Дмитрий перезвонят вам в ближайшее время.'
+          'Заявка принята! Аня или Дмитрий перезвонят вам в ближайшее время.'
       );
       setName('');
       setPhone('');
@@ -472,10 +473,11 @@ export default function Home() {
       const message =
         err instanceof Error
           ? err.message
-          : 'Не удалось отправить заявку. Проверьте соединение с интернетом.';
+          : 'Сетевая ошибка. Проверьте подключение к интернету или позвоните нам напрямую: +375 (29) 684-11-22.';
       setError(message);
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -1060,10 +1062,9 @@ export default function Home() {
             <div className="space-y-4 text-sm sm:text-base text-[#2C1E16]/90 leading-relaxed">
               <p>
                 Привет! Мы Аня и Дмитрий. До открытия своей мастерской мы
-                несколько лет работали бариста в минских кофейнях. По стандартам
-                Specialty Coffee Association (SCA) пик вкуса и ароматики зерна
-                держится в первые 2–3 недели после обжарки, а дальше эфирные
-                масла быстро выветриваются.
+                несколько лет работали бариста в минских кофейнях. По нашему
+                опыту, пик вкуса и ароматики зерна держится в первые недели после
+                обжарки, а дальше эфирные масла быстро выветриваются.
               </p>
               <p>
                 Поэтому в «Кварте» нет склада готовой продукции. Мы жарим кофе
@@ -1544,6 +1545,7 @@ export default function Home() {
 
                 {error && (
                   <div
+                    role="alert"
                     style={{ fontFamily: 'var(--font-mono), monospace' }}
                     className="bg-red-950/60 border border-red-500/50 text-red-300 p-4 text-xs flex items-start gap-3"
                   >
@@ -1573,7 +1575,7 @@ export default function Home() {
                   <div className="text-center mt-4">
                     <span
                       style={{ fontFamily: 'var(--font-mono), monospace' }}
-                      className="text-[9px] text-[#FDFBF7]/50 uppercase"
+                      className="text-[10px] text-[#FDFBF7]/70 uppercase font-medium"
                     >
                       Нажимая кнопку, вы даете согласие на обработку персональных данных
                     </span>
@@ -1596,7 +1598,7 @@ export default function Home() {
             </div>
             <div>Минск, ул. Короля, 9 (Пн–Пт 8:00–20:00, Сб–Вс 10:00–18:00)</div>
             <div className="text-[10px] text-[#2C1E16]/60">
-              Демо-проект • Реквизиты и УНП 000000000 являются тестовой заглушкой
+              Демо-проект • Референсные данные обжарки
             </div>
           </div>
           <div className="text-left md:text-right">
