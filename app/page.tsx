@@ -139,7 +139,7 @@ const CUSTOMER_NOTES = [
     name: 'Денис и команда, пр-т Победителей',
     context: 'Подписка в офис + коробка дрипов',
     message:
-      'Перешли на «Кварту» всем отделом три месяца назад. Серрадо в офисной кофемашине с молоком получается плотным, без горечи, как в хорошей кофейне в центре. Отдельный респект за простоту: никаких сложных кабинетов, Дима сам пишет в четверг.',
+      'Перешли на «Кварту» всем отделом три месяца назад. Серрадо в офисной кофемашине с молоком получается плотным, без горечи, как в хорошей кофейне в центре. Отдельный респект за простоту: никаких сложных кабинетов, Дмитрий сам пишет в четверг.',
     reply: 'Денис, всегда рады завезти вам свежую партию в пятницу утром!',
     photo:
       'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop',
@@ -149,7 +149,7 @@ const CUSTOMER_NOTES = [
     name: 'Илья, Грушевка',
     context: 'Самовывоз из мастерской • Колумбия Уила',
     message:
-      'Захожу к Ане и Диме по дороге на работу. Приятно, когда обжарщики сами стоят за баром и могут человеческим языком объяснить, какой помол выставить под домашнюю рожковую кофеварку.',
+      'Захожу к Ане и Дмитрию по дороге на работу. Приятно, когда обжарщики сами стоят за баром и могут человеческим языком объяснить, какой помол выставить под домашнюю рожковую кофеварку.',
     reply: 'Илья, забегай на фильтр в эту пятницу, открыли новую Колумбию!',
     photo:
       'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=400&auto=format&fit=crop',
@@ -367,31 +367,51 @@ export default function Home() {
     setError('');
     setSuccessMsg('');
 
+    if (name.trim().length < 2) {
+      setError('Пожалуйста, укажите ваше имя (минимум 2 символа).');
+      return;
+    }
+
     // СТРОГАЯ ВАЛИДАЦИЯ НОМЕРА
     const digits = phone.replace(/\D/g, '');
     const operator = digits.length >= 5 ? digits.slice(3, 5) : '';
     const validOperators = ['29', '33', '44', '25', '17'];
 
-    if (digits.length !== 12 || !digits.startsWith('375') || !validOperators.includes(operator)) {
-      setError('Укажите корректный код оператора (29, 33, 44, 25 или 17) и полный номер телефона.');
+    if (
+      digits.length !== 12 ||
+      !digits.startsWith('375') ||
+      !validOperators.includes(operator)
+    ) {
+      setError(
+        'Укажите корректный код оператора РБ (29, 33, 44, 25 или 17) и полный номер телефона.'
+      );
       return;
     }
 
-    // ДЕДУПЛИКАЦИЯ НА ФРОНТЕНДЕ (защита от двойного клика и спама)
-    const lastSubmit = localStorage.getItem(`lead_${digits}`);
-    if (lastSubmit && Date.now() - parseInt(lastSubmit, 10) < 10 * 60 * 1000) {
-      setError('Вы уже отправляли заявку с этого номера только что. Пожалуйста, подождите 10 минут перед новой отправкой.');
-      return;
+    // ДЕДУПЛИКАЦИЯ НА ФРОНТЕНДЕ (защита от двойного клика и спама на 10 минут)
+    try {
+      const lastSubmit = localStorage.getItem(`lead_${digits}`);
+      if (lastSubmit && Date.now() - parseInt(lastSubmit, 10) < 10 * 60 * 1000) {
+        setError(
+          'Вы уже отправляли заявку с этого номера недавно. Пожалуйста, подождите 10 минут перед повторной отправкой.'
+        );
+        return;
+      }
+    } catch {
+      // Игнорируем ошибку, если localStorage заблокирован в режиме инкогнито
     }
 
     setLoading(true);
 
+    // СБОР ВСЕХ UTM-МЕТОК И CLID ПО ТЗ
     const params = new URLSearchParams(window.location.search);
     const utmSource = params.get('utm_source') || 'direct';
     const utmMedium = params.get('utm_medium') || 'none';
     const utmCampaign = params.get('utm_campaign') || 'none';
     const utmContent = params.get('utm_content') || 'none';
     const utmTerm = params.get('utm_term') || 'none';
+    const yclid = params.get('yclid') || 'none';
+    const fbclid = params.get('fbclid') || 'none';
 
     const orderSummary =
       orderItems.length > 0
@@ -421,8 +441,10 @@ export default function Home() {
           utmCampaign,
           utmContent,
           utmTerm,
+          yclid,
+          fbclid,
           referrer: document.referrer || 'direct',
-          pageUrl: window.location.origin + window.location.pathname,
+          pageUrl: window.location.href,
         }),
       });
 
@@ -432,8 +454,11 @@ export default function Home() {
         throw new Error(data.error || 'Ошибка отправки заявки');
       }
 
-      // Запоминаем в браузере, что с этого номера заявка уже ушла
-      localStorage.setItem(`lead_${digits}`, Date.now().toString());
+      try {
+        localStorage.setItem(`lead_${digits}`, Date.now().toString());
+      } catch {
+        // Игнорируем ошибку в режиме инкогнито
+      }
 
       setSuccessMsg(
         data.message ||
@@ -447,7 +472,7 @@ export default function Home() {
       const message =
         err instanceof Error
           ? err.message
-          : 'Не удалось отправить заявку. Проверьте соединение.';
+          : 'Не удалось отправить заявку. Проверьте соединение с интернетом.';
       setError(message);
     } finally {
       setLoading(false);
@@ -470,7 +495,7 @@ export default function Home() {
             </span>
           </div>
           <div className="text-[#EAE1D8] font-bold">
-            Ограниченная партия на этой неделе
+            Малые партии по 5 кг • Свежий урожай
           </div>
         </div>
       </div>
@@ -538,7 +563,7 @@ export default function Home() {
               onClick={() => scrollToSection('delivery')}
               className="hover:text-[#2C1E16]/60 transition-colors cursor-pointer font-bold"
             >
-              [05] Самовывоз
+              [05] Доставка
             </button>
           </nav>
 
@@ -578,7 +603,7 @@ export default function Home() {
                   rel="noreferrer"
                   className="hover:text-[#2C1E16] flex items-center gap-1 underline underline-offset-2"
                 >
-                  <span>Мастерская: ул. Короля, 9</span>
+                  <span>Мастерская в Минске</span>
                   <Navigation className="w-3 h-3" />
                 </a>
                 <span>•</span>
@@ -644,7 +669,7 @@ export default function Home() {
                     24–72 ч
                   </div>
                   <div className="text-[#2C1E16]/80 text-[11px] mt-0.5">
-                    до свежей чашки
+                    от ростера до чашки
                   </div>
                 </div>
                 <div className="border-l border-[#2C1E16]/10 pl-4">
@@ -652,7 +677,7 @@ export default function Home() {
                     0 BYN
                   </div>
                   <div className="text-[#2C1E16]/80 text-[11px] mt-0.5">
-                    доставка по Минску от 50 BYN
+                    доставка при заказе от 50 BYN
                   </div>
                 </div>
               </div>
@@ -671,7 +696,7 @@ export default function Home() {
               className="mt-6 p-4 bg-[#FDFBF7] border border-[#2C1E16]/10 text-xs space-y-2"
             >
               <div className="flex justify-between items-center font-bold text-[#2C1E16] border-b border-[#2C1E16]/10 pb-1.5">
-                <span>БЛИЖАЙШАЯ ОБЖАРКА</span>
+                <span>ГРАФИК БЛИЖАЙШЕЙ ПАРТИИ</span>
                 <span className="text-[#2C1E16]">{schedule.roastDate}</span>
               </div>
               <p className="text-[11px] text-[#2C1E16]/80 leading-relaxed">
@@ -704,8 +729,8 @@ export default function Home() {
               style={{ fontFamily: 'var(--font-mono), monospace' }}
               className="text-xs text-[#2C1E16]/80 max-w-md"
             >
-              Выберите способ заваривания — мы бесплатно смелем
-              зерно перед выездом курьера.
+              Выберите способ заваривания в карточке — мы бесплатно смелем
+              зерно прямо перед выездом курьера.
             </p>
           </div>
 
@@ -874,7 +899,7 @@ export default function Home() {
                         {isJustAdded ? (
                           <>
                             <Check className="w-4 h-4" />
-                            В заявке
+                            В заявке ({currentGrind})
                           </>
                         ) : (
                           <>
@@ -889,7 +914,7 @@ export default function Home() {
                         onClick={() => scrollToSection('order-form')}
                         className="bg-[#FDFBF7] hover:bg-[#F4EFEA] text-[#2C1E16] border border-[#2C1E16]/20 hover:border-[#2C1E16] px-4 py-3.5 text-[11px] font-bold uppercase transition-all cursor-pointer shrink-0"
                       >
-                        К оформлению
+                        К форме ↓
                       </button>
                     </div>
                   </div>
@@ -911,7 +936,7 @@ export default function Home() {
                   [02] КОФЕЙНАЯ ПОДПИСКА
                 </span>
                 <span className="text-[#FDFBF7]/80">
-                  2 пачки по 250 г раз в месяц • Бесплатная доставка
+                  2 пачки по 250 г раз в месяц • Выгода до 15 BYN
                 </span>
               </div>
 
@@ -1034,16 +1059,17 @@ export default function Home() {
 
             <div className="space-y-4 text-sm sm:text-base text-[#2C1E16]/90 leading-relaxed">
               <p>
-                Привет! Мы Аня и Дмитрий. До открытия своей мастерской на улице
-                Короля мы несколько лет работали бариста в минских кофейнях. Там
-                мы поняли простую вещь: даже самое дорогое зерно теряет до 60%
-                ароматических масел уже через месяц после обжарки.
+                Привет! Мы Аня и Дмитрий. До открытия своей мастерской мы
+                несколько лет работали бариста в минских кофейнях. По стандартам
+                Specialty Coffee Association (SCA) пик вкуса и ароматики зерна
+                держится в первые 2–3 недели после обжарки, а дальше эфирные
+                масла быстро выветриваются.
               </p>
               <p>
-                Поэтому в «Кварте» нет огромного склада. Мы жарим кофе
+                Поэтому в «Кварте» нет склада готовой продукции. Мы жарим кофе
                 маленькими партиями по <strong>5 килограммов</strong> строго по
                 четвергам — ровно столько, сколько вы заказали на этой неделе. В
-                пятницу пачка уже у вас дома или в офисе.
+                пятницу свежая пачка уже у вас дома или в офисе.
               </p>
             </div>
 
@@ -1051,7 +1077,9 @@ export default function Home() {
               style={{ fontFamily: 'var(--font-mono), monospace' }}
               className="p-4 bg-[#FDFBF7] border border-[#2C1E16]/10 text-xs flex items-center justify-between"
             >
-              <span className="text-[#2C1E16]/80 font-bold">Аня и Дмитрий, основатели</span>
+              <span className="text-[#2C1E16]/80 font-bold">
+                Аня и Дмитрий, основатели «Кварты»
+              </span>
               <a
                 href="tel:+375296841122"
                 className="font-bold text-[#2C1E16] hover:underline"
@@ -1062,9 +1090,9 @@ export default function Home() {
           </div>
 
           <div className="lg:col-span-6 space-y-6">
-             <PhotoCard
+            <PhotoCard
               poster="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=1200&auto=format&fit=crop"
-              alt="Основатели Кварты"
+              alt="Аня и Дмитрий в обжарочной Кварта"
               className="w-full aspect-[16/9] border border-[#2C1E16]/10"
             />
             <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 space-y-5">
@@ -1079,7 +1107,8 @@ export default function Home() {
                   <strong className="text-[#2C1E16] block mb-0.5">
                     Принимаем заявки
                   </strong>
-                  Формируем план обжарки по сортам. Мастерская открыта с 8:00 до 20:00.
+                  Формируем план обжарки по сортам. Мастерская открыта с 8:00 до
+                  20:00.
                 </div>
               </div>
 
@@ -1094,7 +1123,8 @@ export default function Home() {
                   <strong className="text-[#2C1E16] block mb-0.5">
                     День обжарки (партии по 5 кг)
                   </strong>
-                  Жарим свежее зерно, проверяем профиль и фасуем в пачки с клапаном.
+                  Жарим свежее зерно, проверяем профиль и фасуем в пачки с
+                  дегазационным клапаном.
                 </div>
               </div>
 
@@ -1109,7 +1139,8 @@ export default function Home() {
                   <strong className="text-[#2C1E16] block mb-0.5">
                     Помол и развозка
                   </strong>
-                  Мелем пачки под ваш способ и бесплатно развозим по Минску заказы от 50 BYN.
+                  Мелем пачки под ваш способ и бесплатно развозим по Минску
+                  заказы от 50 BYN.
                 </div>
               </div>
             </div>
@@ -1195,7 +1226,7 @@ export default function Home() {
           <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 sm:p-8 space-y-5">
             <PhotoCard
               poster="https://images.unsplash.com/photo-1498804103079-a6351b050096?q=80&w=1200&auto=format&fit=crop"
-              alt="Мастерская Кварта на Короля, 9"
+              alt="Самовывоз из мастерской Кварта"
               className="h-60 border border-[#2C1E16]/10"
             />
             <div className="space-y-3">
@@ -1239,7 +1270,7 @@ export default function Home() {
 
           <div className="bg-[#FDFBF7] border border-[#2C1E16]/10 p-6 sm:p-8 space-y-5">
             <PhotoCard
-              poster="https://images.unsplash.com/photo-1615486171448-4fb324ab226b?q=80&w=1200&auto=format&fit=crop"
+              poster="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=1200&auto=format&fit=crop"
               alt="Пятничная доставка по Минску"
               className="h-60 border border-[#2C1E16]/10"
             />
@@ -1289,9 +1320,9 @@ export default function Home() {
                 ОФОРМИТЬ ЗАКАЗ
               </h2>
               <p className="text-xs text-[#FDFBF7]/90 leading-relaxed">
-                Оставьте имя и белорусский номер телефона. Менеджер перезвонит,
-                чтобы согласовать пятничную доставку по Минску или самовывоз с
-                Короля, 9.
+                Оставьте имя и белорусский номер телефона. Аня или Дмитрий
+                перезвонят, чтобы согласовать пятничную доставку по Минску или
+                самовывоз.
               </p>
             </div>
 
@@ -1483,6 +1514,14 @@ export default function Home() {
                   </div>
                 </div>
 
+                <span
+                  style={{ fontFamily: 'var(--font-mono), monospace' }}
+                  className="text-[10px] text-[#FDFBF7]/60 block -mt-2"
+                >
+                  Коды операторов РБ: 29, 33, 44, 25, 17 (принимаются форматы
+                  +375 и 80).
+                </span>
+
                 <div className="space-y-2">
                   <label
                     style={{ fontFamily: 'var(--font-mono), monospace' }}
@@ -1494,7 +1533,7 @@ export default function Home() {
                     <MessageSquare className="w-4 h-4 text-white/50 absolute left-3.5 top-3.5 pointer-events-none" />
                     <textarea
                       rows={3}
-                      placeholder="Улица и дом для курьера в пятницу, либо напишите «самовывоз с Короля, 9»..."
+                      placeholder="Улица и дом для курьера в пятницу, либо напишите «самовывоз»..."
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       style={{ fontFamily: 'var(--font-mono), monospace' }}
@@ -1557,11 +1596,11 @@ export default function Home() {
             </div>
             <div>Минск, ул. Короля, 9 (Пн–Пт 8:00–20:00, Сб–Вс 10:00–18:00)</div>
             <div className="text-[10px] text-[#2C1E16]/60">
-              ИП Дороховец А.А. • УНП 193456789
+              Демо-проект • Реквизиты и УНП 000000000 являются тестовой заглушкой
             </div>
           </div>
           <div className="text-left md:text-right">
-            <div className="mb-1">Телефон для связи:</div>
+            <div className="mb-1">Телефон для связи (демо):</div>
             <a
               href="tel:+375296841122"
               className="font-bold text-lg text-[#2C1E16] hover:underline"
