@@ -266,7 +266,6 @@ export default function Home() {
     const day = now.getDay();
     const hour = now.getHours();
 
-    // Если среда после 18:00 или четверг до обжарки, показываем следующую неделю по задумке аудита
     let diffToThursday = (4 - day + 7) % 7;
     if (day === 3 && hour >= 18) {
       diffToThursday = 7;
@@ -309,7 +308,7 @@ export default function Home() {
   const [comment, setComment] = useState('');
 
   const [loading, setLoading] = useState(false);
-  const isSubmittingRef = useRef(false); // Защита от двойного клика через useRef
+  const isSubmittingRef = useRef(false);
 
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -331,7 +330,6 @@ export default function Home() {
   ) => {
     const key = `${id}-${grind}`;
     
-    // Если в заказе уже есть подписка, не меняем topic на разовый
     const hasSubInCart = orderItems.some(i => i.id === 'subscription') || id === 'subscription';
     if (!hasSubInCart) {
       setTopic(defaultTopic);
@@ -470,10 +468,12 @@ export default function Home() {
       setComment('');
       setOrderItems([]);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Сетевая ошибка. Проверьте подключение к интернету или позвоните нам напрямую: +375 (29) 684-11-22.';
+      let message = 'Не удалось отправить заявку.';
+      if (err instanceof TypeError) {
+        message = 'Нет соединения. Проверьте интернет или позвоните: +375 (29) 684-11-22.';
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       setError(message);
     } finally {
       setLoading(false);
@@ -1480,6 +1480,7 @@ export default function Home() {
                       <input
                         type="text"
                         required
+                        maxLength={50}
                         placeholder="Алексей"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -1534,6 +1535,7 @@ export default function Home() {
                     <MessageSquare className="w-4 h-4 text-white/50 absolute left-3.5 top-3.5 pointer-events-none" />
                     <textarea
                       rows={3}
+                      maxLength={500}
                       placeholder="Улица и дом для курьера в пятницу, либо напишите «самовывоз»..."
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
@@ -1551,7 +1553,7 @@ export default function Home() {
                   >
                     <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                     <div className="space-y-1">
-                      <div className="font-bold text-red-200">Ошибка ввода</div>
+                      <div className="font-bold text-red-200">Не получилось отправить</div>
                       <div className="text-[11px] text-red-300/90">
                         {error}
                       </div>

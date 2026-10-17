@@ -23,7 +23,6 @@ interface LeadRecord {
 
 const memoryLeads: LeadRecord[] = [];
 
-// Функция экранирования для безопасного HTML в Telegram
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')
@@ -43,10 +42,17 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        { error: 'Неверное тело запроса.' },
+        { status: 400 }
+      );
+    }
+
     const name = String(body.name || '').trim();
     const phone = String(body.phone || '').trim();
-    const topic = String(body.topic || 'Разовый заказ').trim();
-    const comment = String(body.comment || '').trim();
+    const topic = String(body.topic || 'Разовый заказ').trim().slice(0, 600);
+    const comment = String(body.comment || '').trim().slice(0, 500);
 
     if (name.length < 2 || name.length > 50) {
       return NextResponse.json(
@@ -70,7 +76,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // ДЕДУПЛИКАЦИЯ НА СЕРВЕРЕ (10 минут)
     const tenMinsAgo = Date.now() - 10 * 60 * 1000;
     const isDuplicate = memoryLeads.some(
       (lead) =>
@@ -95,14 +100,14 @@ export async function POST(request: Request) {
       campaign: String(body.utmCampaign || 'none').slice(0, 50),
       content: String(body.utmContent || 'none').slice(0, 50),
       term: String(body.utmTerm || 'none').slice(0, 50),
-      yclid: String(body.yclid || 'none').slice(100),
-      fbclid: String(body.fbclid || 'none').slice(100),
-      referrer: String(body.referrer || 'direct').slice(100),
-      pageUrl: String(body.pageUrl || '').slice(200),
+      yclid: String(body.yclid || 'none').slice(0, 100),
+      fbclid: String(body.fbclid || 'none').slice(0, 100),
+      referrer: String(body.referrer || 'direct').slice(0, 100),
+      pageUrl: String(body.pageUrl || '').slice(0, 200),
     };
 
     const newLead: LeadRecord = {
-      id: `lead_${Date.now()}`,
+      id: crypto.randomUUID(),
       name,
       phone,
       topic,
@@ -114,7 +119,6 @@ export async function POST(request: Request) {
 
     memoryLeads.push(newLead);
 
-    // ОТПРАВКА В TELEGRAM С ЭКРАНИРОВАНИЕМ
     const tgToken = process.env.TELEGRAM_BOT_TOKEN;
     const tgChatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -125,7 +129,15 @@ export async function POST(request: Request) {
         `📞 <b>Телефон:</b> ${escapeHtml(newLead.phone)}`,
         `📦 <b>Заказ:</b> ${escapeHtml(newLead.topic)}`,
         newLead.comment ? `💬 <b>Комментарий:</b> ${escapeHtml(newLead.comment)}` : '',
-        `🔗 <b>Метки:</b> src: ${escapeHtml(utmData.source)} | med: ${escapeHtml(utmData.medium)} | cmp: ${escapeHtml(utmData.campaign)}`,
+        `🔗 <b>Реклама / Метки:</b>`,
+        `• source: ${escapeHtml(utmData.source)}`,
+        `• medium: ${escapeHtml(utmData.medium)}`,
+        `• campaign: ${escapeHtml(utmData.campaign)}`,
+        `• content: ${escapeHtml(utmData.content)}`,
+        `• term: ${escapeHtml(utmData.term)}`,
+        `• yclid: ${escapeHtml(utmData.yclid)}`,
+        `• fbclid: ${escapeHtml(utmData.fbclid)}`,
+        `• referrer: ${escapeHtml(utmData.referrer)}`,
         `📄 <b>Страница:</b> ${escapeHtml(utmData.pageUrl)}`,
       ]
         .filter(Boolean)
@@ -142,7 +154,8 @@ export async function POST(request: Request) {
       });
 
       if (!tgRes.ok) {
-        console.error('Ошибка отправки в Telegram API');
+        const errorText = await tgRes.text();
+        console.error('Telegram API Error:', errorText);
       }
     }
 
@@ -156,7 +169,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error('API Error:', err);
     return NextResponse.json(
-      { error: 'Внутренняя ошибка сервера. Пожалуйста, попробуйте позже или позвоните нам.' },
+      { error: 'Не удалось отправить заявку. Позвоните нам: +375 (29) 684-11-22.' },
       { status: 500 }
     );
   }
