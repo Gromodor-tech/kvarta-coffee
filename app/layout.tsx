@@ -15,6 +15,13 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Кварта — Свежая обжарка кофе в Минске',
   description: 'Маленькая минская обжарочная бывших бариста Ани и Дмитрия. Жарим по четвергам, развозим в пятницу.',
+  openGraph: {
+    title: 'Кварта — Свежая обжарка кофе в Минске',
+    description: 'Маленькая минская обжарочная бывших бариста Ани и Дмитрия. Жарим по четвергам, развозим по пятницам.',
+    siteName: 'Кварта',
+    locale: 'ru_RU',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
@@ -24,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="antialiased bg-[#E5DBCB] text-[#2C221E]">
+      <body className="antialiased bg-[#FDFBF7] text-[#2C1E16]">
         {children}
       </body>
     </html>
