@@ -68,7 +68,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // СОХРАНЕНИЕ UTM, YCLID, FBCLID И ИСТОЧНИКОВ
     const newLead: LeadRecord = {
       id: `lead_${Date.now()}`,
       name,
@@ -91,7 +90,33 @@ export async function POST(request: Request) {
     };
 
     memoryLeads.push(newLead);
-    console.log('Новая заявка получена:', newLead);
+
+    // ОПЦИОНАЛЬНАЯ ОТПРАВКА В TELEGRAM (для постоянного хранения на Serverless)
+    const tgToken = process.env.TELEGRAM_BOT_TOKEN;
+    const tgChatId = process.env.TELEGRAM_CHAT_ID;
+
+    if (tgToken && tgChatId) {
+      const text = [
+        `☕ <b>Новая заявка «Кварта»</b>`,
+        `👤 <b>Имя:</b> ${newLead.name}`,
+        `📞 <b>Телефон:</b> ${newLead.phone}`,
+        `📦 <b>Заказ:</b> ${newLead.topic}`,
+        newLead.comment ? `💬 <b>Комментарий:</b> ${newLead.comment}` : '',
+        `🔗 <b>Источник:</b> ${newLead.utmData?.source} / ${newLead.utmData?.medium} (yclid: ${newLead.utmData?.yclid}, fbclid: ${newLead.utmData?.fbclid})`,
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: tgChatId,
+          text,
+          parse_mode: 'HTML',
+        }),
+      }).catch((err) => console.error('Ошибка отправки в Telegram:', err));
+    }
 
     return NextResponse.json(
       {
